@@ -46,7 +46,8 @@ Determining the gender of a street names isn't an easy task. It's not about dete
 
 3) To classify some of the roads without a first name, hard-code the gender of a list of words commonly included in street names - especially the military titles, religious titles or titles of nobility (ex: 'Maréchal', 'Général', 'Président', 'Madame', 'Monsieur', 'Duc', 'Duchesse', etc.).
 
-4) To classify the remaining roads named after a famous person but not including their first name or title (ex: 'Rue Monge', 'Rue La Boétie', 'Avenue de Mortemart'), use the `wikipedia` package to search for the current word (ex: 'Monge') on Wikipedia. The code reads the top 3 results, and stops if it finds a first name - in this case, it's highly likely that the road name corresponds to a person, and we can classify their gender.
+4) To classify the remaining roads named after a famous person but not including their first name or title (ex: 'Rue Monge', 'Rue La Boétie', 'Avenue de Mortemart'), use the `wikipedia` package to search for the current word (ex: 'Monge') on Wikipedia. The code reads the top 3 results, and stops if it finds a first name - in this case, it's highly likely that the road name corresponds to a person, and we can classify their gender. Example: `wikipedia.search('lagrange')` outputs `['Joseph-Louis Lagrange', 'Lagrange multiplier', 'Lagrange (disambiguation)']`, in which 'Joesph' is identified as a man.
+
 
 Misclassifications can happen for several reasons:
 
@@ -74,3 +75,5 @@ In terms of analysis, there are many possibilities:
 ## Examples
 
 ![Paris PNG](paris.png)
+
+![Chatou PNG](chatou_gendered_street_map.png)

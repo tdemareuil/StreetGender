@@ -23,6 +23,7 @@ class StreetGender:
         genders['preusuel'] = genders['preusuel'].apply(lambda x: unidecode(str.lower(str(x))))
         genders = genders.sort_values('nombre').drop_duplicates('preusuel', keep='last')
         genders = genders[genders['nombre']>=100]
+        genders = genders[genders['preusuel']!='camille'] # remove Camille (2) as most street Camilles are men (1)
         genders = genders.reset_index(drop=True).drop(columns=['nombre'])
         
         # add English first names
@@ -51,7 +52,7 @@ class StreetGender:
             'Baronnes':2, 'Princesse':2, 'Prince':2, 'Roi':1, 'Rois':1, 'Reine':2, 'Reines':2,
             'Marquise':2, 'Marquis':1, 'Lord':1, 'Lady':2, 'Dauphin':1, 'Dauphine':2, 'Chevalier':1, 
             'Archiduc':1, 'Infante':2, 'Empereur':1, 'Emperesse':2, 'Régent':1, 'Régente':2,
-            'Chatelain':1, 'Chatelaine':2, 'Chapelaines':2,
+            'Chatelain':1, 'Chatelaine':2, 'Chapelaines':2, 'Bourgeois':1, 'Bourgeoise':2, 'Bourgeoises':2,
 
             'Président':1, 'Présidente':2, 'Consul':1, 'Maire':1, 'Ambassadeur':1, 'Ambassadeurs':1,
             'Ambassadrice':2, 'Ambassadrices':2, 'Directeur':1, 'Directrice':2, 'Docteur':1, 'Inspecteur':1,
@@ -86,7 +87,9 @@ class StreetGender:
             'moreau':1, 'vezelay':0, 'amiens':0, 'fourviere':0, 'rouen':0, 'bazeilles':0, 'Pecquay':1,
             'duras':1, 'cardinale':1, 'aubry':1, 'petel':1, 'vineuse':0, 'dufrenoy':1, 'lagarde':1,
             'paradis':0, 'clery':0, 'deshayes':1, 'keller':1, 'fabre':1, 'narbonne':0, 'boyer':1,
-            'parme':0, 'halle':0, 'peclet':1, 'camille':1, 'meaux':0, 'tourville':1,}
+            'parme':0, 'halle':0, 'peclet':1, 'Camille':1, 'meaux':0, 'tourville':1, 'salvador':1,
+            'caillou':1, 'napoleon':1, 'Bourbon':1, 'Habsbourg':1, 'croix':0, 'Prairy':0, 'Tahan':1,
+            'beauharnais':2}
 
         more_names = pd.DataFrame.from_dict(more_names, orient='index')
         more_names = more_names.reset_index()
@@ -96,7 +99,7 @@ class StreetGender:
         genders = genders.drop_duplicates('preusuel')
         mistakes = ['france', 'alma', 'barbe', 'lilas', 'milan', 'brune', 'felicite',
                     'nancy', 'grace', 'lorraine', 'blanche', 'evy', 'loup', 'iris',
-                    'colombe', 'jan', 'harmonie', 'julienne', 'camille']
+                    'colombe', 'jan', 'harmonie', 'julienne', 'abbey']
         genders = genders[~genders['preusuel'].isin(mistakes)]
         genders =  genders.reset_index(drop=True)
 
@@ -105,34 +108,36 @@ class StreetGender:
         self._road_graph = None
         self._road_table = None
         self._road_genders = None
-        
+        print('Class instance initiated.')
        
     @property
     def road_graph(self):
-        try:
+        if self._road_graph is not None:
             return self._road_graph
-        except AttributeError:
+        else:
+            print('Querying road graph from OSM...')
             G = ox.graph_from_place(self.place, network_type='drive')
             G = ox.get_undirected(G)
             self._road_graph = G
+        print('Road graph successfully fetched.')
         return self._road_graph
-
+    
     
     @property
     def road_table(self):
-        try:
+        if self._road_table is not None:
             return self._road_table
-        except AttributeError:
-            try:
+        else:
+            if self._road_graph is not None:
                 G = self._road_graph
-            except AttributeError:
-                G = self.road_graph()
+            else:
+                G = self.road_graph
             roads = ox.graph_to_gdfs(G, nodes=False)[['name']]
             self._road_table = roads
             return self._road_table
 
        
-    def classify_gender(self, name: list):
+    def _classify_gender(self, name: list):
         # set gender to neutral
         g = 0
 
@@ -146,7 +151,7 @@ class StreetGender:
 
         # for the names that remained neutral, search wikipedia
         if g == 0 and len(name)==2:
-            results = wikipedia.search(name[1])[:4]
+            results = wikipedia.search(name[1])[:3]
             results = [re.split(" |\-|\'", k) for k in results]
             results = list(chain.from_iterable(results))
             for k in results:
@@ -173,7 +178,7 @@ class StreetGender:
     
     def get_genders(self, gender=None):
         tqdm.pandas()
-        try:
+        if self._road_genders is not None:
             roads = self._road_genders
             if gender == None:
                 return self._road_genders
@@ -185,26 +190,28 @@ class StreetGender:
                 elif gender == 'N':
                     return self.neutral
                 else:
-                    raise ValueError("Please pass 'M', 'F' or 'N' as gender.")
+                    raise ValueError("Please pass 'M', 'F' or 'N' as gender argument.")
                 
-        except AttributeError:
-            try:
+        else:
+            if self._road_table is not None:
                 roads = self._road_table
-            except AttributeError:
-                roads = self.road_table()
+            else:
+                roads = self.road_table
+            print('Classifying streets...')
             roads['name_preprocessed'] = roads['name'].apply(lambda x: unidecode(str.lower(str(x))))
             roads['name_preprocessed'] = roads['name_preprocessed'].apply(lambda x: re.split(" |\-|\'", x))
-            roads['gender'] = roads['name_preprocessed'].progress_apply(lambda x: classify_gender(x))
+            roads['gender'] = roads['name_preprocessed'].progress_apply(lambda x: self._classify_gender(name=x))
             self._road_genders = roads
             
             masc = list(roads[roads['gender']==1]['name'])
-            self.masculine = [x for x in masc if type(x) == str]
+            self.masculine = list(set([x for x in masc if type(x) == str])) # remove duplicate and list items
             fem = list(roads[roads['gender']==2]['name'])
-            self.feminine = [x for x in fem if type(x) == str]
+            self.feminine = list(set([x for x in fem if type(x) == str]))
             neut = list(roads[roads['gender']==0]['name'])
-            self.neutral = [x for x in neut if type(x) == str]
+            self.neutral = list(set([x for x in neut if type(x) == str]))
             
             if gender == None:
+                print('Street genders successfuly computed.')
                 return self._road_genders
             else:
                 if gender == 'M':
@@ -214,17 +221,17 @@ class StreetGender:
                 elif gender == 'N':
                     return self.neutral
                 else:
-                    raise ValueError("Please pass 'M', 'F' or 'N' as gender.")
+                    raise ValueError("Please pass 'M', 'F' or 'N' as gender argument.")
     
     
-    def plot_graph(self, colors=["silver", "cyan", "fuchsia"], legend_loc='lower left'):
-        try:
-            roads = self.road_genders
-        except AttributeError:
+    def plot_graph(self, colors=["silver", "cyan", "fuchsia"], legend_loc='lower left', save=False):
+        if self._road_genders is not None:
+            roads = self._road_genders
+        else:
             roads = self.get_genders()
 
         # add gender attribute to the road graph
-        G = self.road_graph
+        G = self._road_graph
         edges = ox.graph_to_gdfs(G, nodes=False)
         edges['gender'] = roads['gender']
         for index, row in edges.iterrows():
@@ -241,26 +248,43 @@ class StreetGender:
         edges['name'] = edges['name'].apply(lambda x: '' if type(x)!=str else x)
         edges = edges.drop_duplicates('name')
         frequencies = round(edges['gender'].value_counts(normalize=True) * 100, 1)
+        freq_neut = frequencies[0]
+        try:
+            freq_masc = frequencies[1]
+        except:
+            freq_masc = 0
+        try: 
+            freq_fem = frequencies[2]
+        except:
+            freq_fem = 0
         plt.rcParams["font.family"] = "monospace"
         custom_lines = [Line2D([0], [0], color='cyan', lw=3),
                         Line2D([0], [0], color='fuchsia', lw=3),
                         Line2D([0], [0], color='silver', lw=3)]
         l = ax.legend(custom_lines, 
-                  [f"Nom d'homme: {frequencies[1]}%", f"Nom de femme: {frequencies[2]}%", f"Neutre: {frequencies[0]}%"],
+                  [f"Nom d'homme: {freq_masc}%", f"Nom de femme: {freq_fem}%", f"Neutre: {freq_neut}%"],
                   title=f"Rues de {self.place}\nclassées par sexe\n",
                   loc=legend_loc, frameon=False, fontsize='large')
         plt.setp(l.get_title(), multialignment='center', family='monospace', weight='black', size=22)
-        plt.show()
+        plt.show();
+        
+        # save as png
+        if save:
+            fig.set_frameon(True)
+            fig.savefig(f'{str.lower(self.place)}_gendered_street_map.png', 
+                        facecolor=fig.get_facecolor(), bbox_inches='tight')
+            print(f'Map successfully saved as {str.lower(self.place)}_gendered_street_map.png')
+
 
     
     def plot_folium(self, colors=["silver", "cyan", "fuchsia"], save=False):
-        try:
-            roads = self.road_genders
-        except AttributeError:
+        if self._road_genders is not None:
+            roads = self._road_genders
+        else:
             roads = self.get_genders()
 
         # add gender attribute to the road graph
-        G = self.road_graph
+        G = self._road_graph
         edges = ox.graph_to_gdfs(G, nodes=False)
         edges['gender'] = roads['gender']
         for index, row in edges.iterrows():
@@ -277,11 +301,11 @@ class StreetGender:
                 c = colors[0]
             G.edges[row['u'], row['v'], row['key']]['edge_color'] = c
 
-        # plot the street network with folium
-        m = _plot_graph_folium(G, popup_attribute='name', edge_width=2, tiles='cartodbpositron')
+        # plot the street network with folium and save as html if required
+        m = self._plot_graph_folium(G, popup_attribute='name', edge_width=2, tiles='cartodbpositron')
         if save:
-            m.save(f'{self.place}_gendered_street_map.html')
-
+            m.save(f'{str.lower(self.place)}_gendered_street_map.html')
+            print(f'Map successfully saved as {str.lower(self.place)}_gendered_street_map.html')
         return m
 
     
