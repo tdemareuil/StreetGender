@@ -9,7 +9,7 @@ from matplotlib.lines import Line2D
 from matplotlib.colors import LinearSegmentedColormap
 from tqdm import tqdm
 import wikipedia
-wikipedia.set_lang('fr')
+wikipedia.set_lang('en')
 from itertools import chain
 import json
 import folium
@@ -23,9 +23,6 @@ class StreetGender:
         genders['preusuel'] = genders['preusuel'].apply(lambda x: unidecode(str.lower(str(x))))
         genders = genders.sort_values('nombre').drop_duplicates('preusuel', keep='last')
         genders = genders[genders['nombre']>=100]
-        mistakes = ['france', 'alma', 'barbe', 'lilas', 'milan', 'brune', 'felicite',
-                    'nancy', 'grace', 'lorraine', 'blanche', 'evy', 'loup', 'iris']
-        genders = genders[~genders['preusuel'].isin(mistakes)]
         genders = genders.reset_index(drop=True).drop(columns=['nombre'])
         
         # add English first names
@@ -33,7 +30,6 @@ class StreetGender:
         genders_en = genders_en[genders_en['number']>=20]
         genders_en['preusuel'] = genders_en['FirstForename'].apply(lambda x: unidecode(str.lower(str(x))))
         genders_en = genders_en.drop_duplicates('preusuel')
-        genders_en = genders_en[~genders_en['preusuel'].isin(mistakes)]
         genders_en['sexe'] = genders_en['sex'].apply(lambda x: 1 if x=='B' else 2)
         genders_en = genders_en.reset_index(drop=True).drop(columns=['FirstForename','number','sex'])
 
@@ -84,16 +80,26 @@ class StreetGender:
             'Hoche':1, 'Fourneyron':1, 'Lemercier':1, 'Polonceau':1, 'Sibour':1, 'Petrarque':1, 'Bourgoin':1,
             'Thouin':1, 'Benard':1, 'Guénégaud':1, 'Tracy':1, 'Calmels':1, 'Geoffroi':1, 'Villiot':1,
             'Greffulhe':1, 'Tarbé':1, 'Daunay':1, 'Larribe':1, 'Riboutté':1, 'Johannes':1, 'Iannis':1,
-            'Guglielmo':1, 'Guillermo':1}
+            'Guglielmo':1, 'Guillermo':1, 'jan':1, 'buzenval':1, 'dario':1, 'angelo':1, 'giacomo':1,
+            'giuseppe':1, 'giovanni':1, 'compoint':1, 'wattignies':0, 'cavé':1, 'castiglione':0, 'dom':1, 
+            'girodet':1, 'presles':1, 'chartres':0, 'julienne':1, 'marois':1, 'cahors':0, 'riberolle':1,
+            'moreau':1, 'vezelay':0, 'amiens':0, 'fourviere':0, 'rouen':0, 'bazeilles':0, 'Pecquay':1,
+            'duras':1, 'cardinale':1, 'aubry':1, 'petel':1, 'vineuse':0, 'dufrenoy':1, 'lagarde':1,
+            'paradis':0, 'clery':0, 'deshayes':1, 'keller':1, 'fabre':1, 'narbonne':0, 'boyer':1,
+            'parme':0, 'halle':0, 'peclet':1, 'camille':1, 'meaux':0, 'tourville':1,}
 
         more_names = pd.DataFrame.from_dict(more_names, orient='index')
         more_names = more_names.reset_index()
         more_names.columns = ['preusuel','sexe']
         genders = pd.concat([genders, more_names, genders_en], axis=0)
-        genders = genders.drop_duplicates('preusuel')
-        genders =  genders.reset_index(drop=True)
         genders['preusuel'] = genders['preusuel'].apply(lambda x: unidecode(str.lower(str(x))))
-        
+        genders = genders.drop_duplicates('preusuel')
+        mistakes = ['france', 'alma', 'barbe', 'lilas', 'milan', 'brune', 'felicite',
+                    'nancy', 'grace', 'lorraine', 'blanche', 'evy', 'loup', 'iris',
+                    'colombe', 'jan', 'harmonie', 'julienne', 'camille']
+        genders = genders[~genders['preusuel'].isin(mistakes)]
+        genders =  genders.reset_index(drop=True)
+
         self.gender_table = genders
         self.place = place
         self._road_graph = None
@@ -165,7 +171,7 @@ class StreetGender:
         return g
 
     
-    def road_genders(self, gender=None):
+    def get_genders(self, gender=None):
         tqdm.pandas()
         try:
             roads = self._road_genders
@@ -274,7 +280,7 @@ class StreetGender:
         # plot the street network with folium
         m = _plot_graph_folium(G, popup_attribute='name', edge_width=2, tiles='cartodbpositron')
         if save:
-            m.save('paris.html')
+            m.save(f'{self.place}_gendered_street_map.html')
 
         return m
 
