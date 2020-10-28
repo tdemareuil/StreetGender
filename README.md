@@ -31,7 +31,7 @@ The place name (str) is passed to `osmnx` to query streets on OpenStreetMap - yo
 
 The `get_genders()` method runs gender classification on all street names and returns a table with road names and corresponding genders (can take a few minutes depending on the number of streets to classify). It can take a `gender` argument (either 'M', 'F' or 'N') to output only the list of either masculine, feminine or neutral streets. 
 
-The `plot_graph()` method draws a coloured map of the streets (static) and can take as optional arguments a list of 3 colors (default: `colors=["silver", "cyan", "fuchsia"]`), the legend localization (default: `legend_loc='lower left'`) and a `save`option (bool) to save your map as a PNG file in the current folder. To plot an interactive `folium` map, use the `plot_folium()` method, which can also take `color` and `save` arguments (the latter saves your map as an interactive HTML file).
+The `plot_graph()` method draws a coloured map of the streets (static) and can take as optional arguments a list of 3 colors (default: `colors=["silver", "cyan", "fuchsia"]`), the legend localization (default: `legend_loc='lower left'`) and a `save`option (bool) to save your map as a PNG file in the current folder. To plot an interactive `folium` map, use the `plot_folium()` method, which can also take `color` and `save` arguments (the latter saves your map as an interactive HTML file). See examples below (static) and in the `examples` folder (interactive).
 
 Other attributes of the class include: `.road_graph` to access the road `networkx` graph object, `.road_table` for the table of road names, and `.gender_table` for the dictionary used during classification.
 
@@ -77,9 +77,9 @@ In terms of analysis, there are many possibilities:
 
 ## Examples
 
-![Paris PNG](paris_gendered_street_map.png)
+![Paris PNG](examples/paris_gendered_street_map.png)
 
-![Chatou PNG](chatou_gendered_street_map.png)
+![Chatou PNG](examples/chatou_gendered_street_map.png)
 
-![Haute-Savoie PNG](haute-savoie_gendered_street_map.png)
+![Haute-Savoie PNG](examples/haute-savoie_gendered_street_map.png)
 
