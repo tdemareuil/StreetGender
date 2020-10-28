@@ -1,6 +1,6 @@
 # StreetGender
 
-This repository is the output of a week-end project I did in October 2020. Inspired by [this](https://towardsdatascience.com/what-can-analysing-more-than-2-million-street-names-reveal-c94be585759?gi=dd685ebcf5c5) Medium article, I wanted to analyze street names in France, and especially in the city of Paris, to determine what percentage of them correspond to women vs men (TL;DR: not so much). The challenging part of the work was to accurately classify the roads with famous people's names as either masculine or feminine, and the others as neutral - I detail my method below. I wrapped the code into a Python module with a single class, `StreetGender`, that you can use to classify the streets from any place in France and plot a map coloured by gender - see 'Quick start' and examples below.
+This repository is the output of a week-end project I did in October 2020. Inspired by [this](https://towardsdatascience.com/what-can-analysing-more-than-2-million-street-names-reveal-c94be585759?gi=dd685ebcf5c5) Medium article, I wanted to analyze street names in France, and especially in the city of Paris, to determine what percentage of them correspond to women vs men (TL;DR: not so much). The challenging part of the work was to accurately classify the roads as either masculine or feminine (when they included famous people's names), and the others as neutral - I detail my method and the remaining errors below. I wrapped up the code into a Python module with a single class, `StreetGender`, that you can use to classify the streets from any place in France and to plot a street map coloured by gender - see 'Quick start' and examples below.
 
 <br>
 
@@ -86,7 +86,9 @@ In terms of analysis, there are many possibilities:
 
 ![Paris PNG](examples/paris_gendered_street_map.png)
 
-<img align="center" src="examples/chatou_gendered_street_map.png" width="680" alt="Chatou PNG">
+<img align="center" src="examples/chatou_gendered_street_map.png" width="678" alt="Chatou PNG">
+
+<br>
 
 ![Haute-Savoie PNG](examples/haute-savoie_gendered_street_map.png)
 
