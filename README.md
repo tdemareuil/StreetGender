@@ -2,6 +2,7 @@
 
 This repository is the output of a week-end project I did in October 2020. Inspired by [this](https://towardsdatascience.com/what-can-analysing-more-than-2-million-street-names-reveal-c94be585759?gi=dd685ebcf5c5) Medium article, I wanted to analyze street names in France, and especially in the city of Paris, to determine what percentage of them correspond to women vs men (TL;DR: not so much). The challenging part of the work was to accurately classify the roads with famous people's names as either masculine or feminine, and the others as neutral - I detail my method below. I wrapped the code into a Python module with a single class, `StreetGender`, that you can use to classify the streets from any place in France and plot a map coloured by gender - see 'Quick start' and examples below.
 
+<br>
 
 ## Repo contents
 
@@ -9,6 +10,8 @@ You'll find here:
 - a Python module containing an all-in-one class, `StreetGender`
 - the `environment.yml` file required to run the code
 - examples of output for the city of Paris (static / png format and interactive / html format)
+
+<br>
 
 ## Quick start
 
@@ -35,6 +38,7 @@ The `plot_graph()` method draws a coloured map of the streets (static) and can t
 
 Other attributes of the class include: `.road_graph` to access the road `networkx` graph object, `.road_table` for the table of road names, and `.gender_table` for the dictionary used during classification.
 
+<br>
 
 ## Methodology
 
@@ -48,6 +52,7 @@ Determining the gender of a street names isn't an easy task. It's not about dete
 
 4) To classify the remaining roads named after a famous person but not including their first name or title (ex: 'Rue Monge', 'Rue La Boétie', 'Avenue de Mortemart'), use the `wikipedia` package to search for the current word (ex: 'Monge') on Wikipedia. The code reads the top 3 results, and stops if it finds a first name - in this case, it's highly likely that the road name corresponds to a person, and we can classify their gender. Example: `wikipedia.search('lagrange')` outputs `['Joseph-Louis Lagrange', 'Lagrange multiplier', 'Lagrange (disambiguation)']`, in which 'Joesph' is identified as a man.
 
+<br>
 
 Misclassifications can happen for several reasons:
 
@@ -57,6 +62,7 @@ Misclassifications can happen for several reasons:
 
 * When the first person that appears on Wikipedia based on the road name isn't the one after which the road was named - for example 'Jenner' outputs 'Kylie Jenner' before 'Edward Jenner' (English physician), and 'Bosquet' outputs 'Céline Bosquet' (TV host) before 'Maréchal Bosquet' (French military officer). A workaround would be to eliminate profiles whose birth date is too recent (as contemporary people often do not give their names to roads), but this would require additional wikipedia scraping.
 
+<br>
 
 ## Analysis & Next steps
 
@@ -74,12 +80,13 @@ In terms of analysis, there are many possibilities:
 * produce more statistics about street names: what's the percentage of religious-based street names, etc.
 * use wikipedia scraping to learn more about street names: from which century or historical period does the majority of names come from? Which job / occupation is the most represented? Who are these few women on street names?? - Lots of interesting stuff to discover!
 
+<br>
 
 ## Examples
 
 ![Paris PNG](examples/paris_gendered_street_map.png)
 
-![Chatou PNG](examples/chatou_gendered_street_map.png)
+<img align="center" src="examples/chatou_gendered_street_map.png" width="680" alt="Chatou PNG">
 
 ![Haute-Savoie PNG](examples/haute-savoie_gendered_street_map.png)
 
