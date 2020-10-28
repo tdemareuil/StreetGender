@@ -183,11 +183,18 @@ class StreetGender:
             else:
                 roads = self.road_table
             print('Classifying streets...')
-            roads['name_preprocessed'] = roads['name'].apply(lambda x: unidecode(str.lower(str(x))))
-            roads['name_preprocessed'] = roads['name_preprocessed'].apply(lambda x: re.split(" |\-|\'", x))
-            roads['gender'] = roads['name_preprocessed'].progress_apply(lambda x: self._classify_gender(name=x))
+
+            # create intermediate table with no duplicates to compute genders
+            roads['name_lower'] = roads['name'].apply(lambda x: unidecode(str.lower(str(x))))
+            intermediate = pd.DataFrame(roads['name_lower'].drop_duplicates())
+            intermediate['name_preprocessed'] = intermediate['name_lower'].apply(lambda x: re.split(" |\-|\'", x))
+            intermediate['gender'] = intermediate['name_preprocessed'].progress_apply(lambda x: self._classify_gender(name=x))
+
+            # merge back with roads table
+            roads = roads.merge(intermediate, on='name_lower')
             self._road_genders = roads
             
+            # store masc, fem and neutral streets in separate attributes
             masc = list(roads[roads['gender']==1]['name'])
             self.masculine = list(set([x for x in masc if type(x) == str])) # remove duplicated and list items
             fem = list(roads[roads['gender']==2]['name'])
@@ -216,9 +223,14 @@ class StreetGender:
             roads = self.get_genders()
 
         # add gender attribute to the road graph
+        # for that, we first add the gender column from `roads` to the full road geodataframe (`edges`),
+        # thanks to a common sorting order based on the ['name_lower'] column.
         G = self._road_graph
         edges = ox.graph_to_gdfs(G, nodes=False)
-        edges['gender'] = roads['gender']
+        roads = roads.sort_values('name_lower', ignore_index=True) # sort `roads` on name_lower
+        edges['name_lower'] = edges['name'].apply(lambda x: unidecode(str.lower(str(x)))) 
+        edges = edges.sort_values('name_lower', ignore_index=True) # sort `edges` on name_lower
+        edges['gender'] = roads['gender'] # add gender column from `roads` to `edges` - everything should match!
         for index, row in edges.iterrows():
             G.edges[row['u'], row['v'], row['key']]['gender'] = row['gender']
 
@@ -268,9 +280,14 @@ class StreetGender:
             roads = self.get_genders()
 
         # add gender attribute to the road graph
+        # for that, we first add the gender column from `roads` to the full road geodataframe (`edges`),
+        # thanks to a common sorting order based on the ['name_lower'] column.
         G = self._road_graph
         edges = ox.graph_to_gdfs(G, nodes=False)
-        edges['gender'] = roads['gender']
+        roads = roads.sort_values('name_lower', ignore_index=True) # sort `roads` on name_lower
+        edges['name_lower'] = edges['name'].apply(lambda x: unidecode(str.lower(str(x)))) 
+        edges = edges.sort_values('name_lower', ignore_index=True) # sort `edges` on name_lower
+        edges['gender'] = roads['gender'] # add gender column from `roads` to `edges` - everything should match!
         for index, row in edges.iterrows():
             G.edges[row['u'], row['v'], row['key']]['gender'] = row['gender']
 
@@ -423,5 +440,7 @@ custom_dict = {
             'markos':1, 'vernier':1, 'thorigny':1, 'theodule':1, 'arnault':1, 'Mstislav':1, 'rousseau':1,
             'gerda':2, 'Rochefoucauld':1, 'spontini':1, 'bessie':2, 'nicolo':1, 'galilee':1, 'mac':1,
             'Wilhelm':1, 'richemont':1, 'coluche':1, 'dode':1, 'berbet':1, 'labois':1, 'franquet':1,
-            'Elisée':1, 'myron':1, 'camulogene':1, 'furtado':2, 'charlemagne':1, 'franc':1}
+            'Elisée':1, 'myron':1, 'camulogene':1, 'furtado':2, 'charlemagne':1, 'franc':1, 'gall':2, 
+            'jay':2, 'bellay':1, 'chauvin':1, 'antonini':1, 'dante':1, 'alberto':1, 'jacopo':1
+            }
 

@@ -25,6 +25,7 @@ conda activate street-gender
 And then run the following Python lines:
 
 ```python
+from StreetGender import StreetGender
 your_place = StreetGender('your_place')
 your_place.get_genders()
 your_place.plot_graph()
@@ -58,9 +59,9 @@ Misclassifications can happen for several reasons:
 
 * When the first name isn't recognized - i.e. uncommon names in French and English that I don't have in my list of first names, for example Italian or Deutsch first names.
 
-* When the road name is mistakingly interpreted as a person, because it exists in the list of first names. Example: 'Rue Blanche' where Blanche can be a first name, 'Rue des Iris' or 'Place de Lorraine', which are respectively a color and a flower but can also be first names (note: I removed the first names that much rarer but apparently given to some people since 1900. In most case, once spotted we can remove the misleading first name from the list - if it's not too common and won't be needed to classify real names.
+* When the road name is mistakingly interpreted as a person, because it exists in the list of first names. Example: 'Rue Blanche' where Blanche is a color but can also be a first name, 'Rue des Iris' where Iris is a flower, or 'Place de Lorraine' where Lorraine is a region. In most case, once spotted we can remove the misleading first name from the list. Note that I already removed the first names that were given to less than 100 people since 1900, as rare names such as 'Odessa' or 'Annecy' (names of cities) created errors.
 
-* When the first person that appears on Wikipedia based on the road name isn't the one after which the road was named - for example 'Jenner' outputs 'Kylie Jenner' before 'Edward Jenner' (English physician), and 'Bosquet' outputs 'Céline Bosquet' (TV host) before 'Maréchal Bosquet' (French military officer). A workaround would be to eliminate profiles whose birth date is too recent (as contemporary people often do not give their names to roads), but this would require additional wikipedia scraping.
+* When the first person that appears on Wikipedia based on the road name isn't the one after which the road was named - for example 'Jenner' outputs 'Kylie Jenner' before 'Edward Jenner' (English physician), and 'Bosquet' outputs 'Céline Bosquet' (TV host) before 'Maréchal Bosquet' (French military officer). A workaround would be to eliminate profiles whose birth date is too recent (as contemporary people often do not give their names to roads), but this would require additional wikipedia scraping. Unfortunately, the Python API for Wikipedia doesn't offer an option to customly sort search results (the results order is based on 'relevance', which is unclear and can vary even when we send the same query several times).
 
 <br>
 
@@ -69,7 +70,6 @@ Misclassifications can happen for several reasons:
 This was a short project, and as seen above classifying the gender of street names can become quite complex, so my method is still far from perfect. However, it clearly confirms that women are (immensely) under-represented in street names... It's true that a majority of historical, politcal or military figures, which often end up on street names, are men - but still, under-representation is blatant. Even with the current efforts to rename streets or name new streets after famous women, we're not there yet...!
 
 The next steps in terms of code would be to:
-* decrease computing time - e.g. for now several segments of the same road have the same name but pass through classification several times, maybe this could be avoided 
 * decrease the number of classification mistakes (maybe with deeper Wikipedia scraping - but this would increase computing time)
 * decrease the number of streets that swim through the mesh of the net and remain unclassified (neutral), while they do correspond to people (e.g. by adding first names from other languages in the gender dictionary)
 * adapt the code and method to other languages
