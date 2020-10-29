@@ -441,6 +441,7 @@ custom_dict = {
             'gerda':2, 'Rochefoucauld':1, 'spontini':1, 'bessie':2, 'nicolo':1, 'galilee':1, 'mac':1,
             'Wilhelm':1, 'richemont':1, 'coluche':1, 'dode':1, 'berbet':1, 'labois':1, 'franquet':1,
             'Elisée':1, 'myron':1, 'camulogene':1, 'furtado':2, 'charlemagne':1, 'franc':1, 'gall':2, 
-            'jay':2, 'bellay':1, 'chauvin':1, 'antonini':1, 'dante':1, 'alberto':1, 'jacopo':1
+            'jay':2, 'bellay':1, 'chauvin':1, 'antonini':1, 'dante':1, 'alberto':1, 'jacopo':1, 'rapee':1,
+            'bruxelles':0,
             }
 
