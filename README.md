@@ -47,7 +47,7 @@ Determining the gender of a street names isn't an easy task. It's not about dete
 
 1) Use a list of all French first names + associated gender in order to classify the roads that include a first name. I used the list of all first names between 1900 and 2019 published by INSEE at this [address](https://www.insee.fr/fr/statistiques/2540004?sommaire=4767262#consulter).
 
-2) Do the same with English first names, extracted from the list of all first names given in Scotland since 1910 - available [here](https://www.nrscotland.gov.uk/files//statistics/babies-names/19/babies-first-names-all-names-all-years.csv).
+2) Do the same with first names from other languages: I added English first names, extracted from the list of all first names given in Scotland since 1910 (available [here](https://www.nrscotland.gov.uk/files//statistics/babies-names/19/babies-first-names-all-names-all-years.csv)) and some of the most common Italian first names (found [here](https://www.rinonline.it/studenti_nomi_propri_persona.htm)).
 
 3) To classify some of the roads without a first name, hard-code the gender of a list of words commonly included in street names - especially the military titles, religious titles or titles of nobility (ex: 'Maréchal', 'Général', 'Président', 'Madame', 'Monsieur', 'Duc', 'Duchesse', etc.).
 
@@ -57,7 +57,7 @@ Determining the gender of a street names isn't an easy task. It's not about dete
 
 Misclassifications can happen for several reasons:
 
-* When the first name isn't recognized - i.e. uncommon names in French and English that I don't have in my list of first names, for example Italian or Deutsch first names.
+* When the first name isn't recognized - i.e. uncommon names in French, English and Italian that I don't have in my list of first names, for example Spanish or Deutsch first names.
 
 * When the road name is mistakingly interpreted as a person, because it exists in the list of first names. Example: 'Rue Blanche' where Blanche is a color but can also be a first name, 'Rue des Iris' where Iris is a flower, or 'Place de Lorraine' where Lorraine is a region. In most case, once spotted we can remove the misleading first name from the list. Note that I already removed the first names that were given to less than 100 people since 1900, as rare names such as 'Odessa' or 'Annecy' (names of cities) created errors.
 
